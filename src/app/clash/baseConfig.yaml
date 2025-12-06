@@ -14,33 +14,10 @@ dns:
     nameserver: ['https://doh.pub/dns-query', 'https://dns.alidns.com/dns-query']
     fallback: ['https://doh.dns.sb/dns-query', 'https://dns.cloudflare.com/dns-query', 'https://dns.twnic.tw/dns-query', 'tls://8.8.4.4:853']
     fallback-filter: { geoip: true, ipcidr: [240.0.0.0/4, 0.0.0.0/32] }
-proxy-providers:
-    机场1:
-        type: http
-        url: 'http://替换成你的机场订阅地址'
-        interval: 86400
-        override:
-            additional-prefix: '机场1-' # 聚合多个机场时建议设置，防止节点名称冲突
-    # 机场2:
-    #     type: http
-    #     url: 'http://替换成你的机场订阅地址'
-    #     interval: 86400
-    #     override:
-    #         additional-prefix: '机场2-'
-    # 机场3:
-    #     type: inline
-    #     payload:
-    #         - { name: '🇭🇰 香港 01', type: trojan, server: 548a3f1d.*****.cn, port: 12001, password: 123456, udp: true, sni: cdn.alibaba.com, skip-cert-verify: true }
-    #     override:
-    #         additional-prefix: '机场3-'
-proxies:
-    # 配置自己的落地节点，不要忘记设置
-    - { name: SG落地, type: vmess, server: '***.***.xyz', port: 443, cipher: auto, uuid: '***uuid***', tls: true, alterId: 0, network: ws, ws-opts: { path: '/ray/clashws', headers: {} }, dialer-proxy: 手动选择 } # 配置dialer-proxy，请求会先从“手动选择”的节点中转，再落地到“SG落地”节点
-proxy-groups:
-    - { name: 我的代理, type: select, proxies: [SG落地, 手动选择] }
-    - { name: 手动选择, type: select, use: [机场1], proxies: [自动选择] } # 如有多个机场，都配置在use里面：use: [机场1, 机场2, 机场3]
-    - { name: 自动选择, type: url-test, use: [机场1], url: 'http://www.gstatic.com/generate_204', interval: 3600 } # 如有多个机场，都配置在use里面：use: [机场1, 机场2, 机场3]
-rules:
+proxy-providers: []
+proxies: []
+proxy-groups: []
+    rules:
     - 'DOMAIN-SUFFIX,x.com,我的代理' # 指定所有x.com结尾的域名流量都走“我的代理”
     - 'DOMAIN-SUFFIX,services.googleapis.cn,我的代理'
     - 'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,我的代理'

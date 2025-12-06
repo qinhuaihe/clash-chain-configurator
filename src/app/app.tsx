@@ -1,10 +1,15 @@
-import baseConfig from "./baseConfig.yaml"
+import { useState } from "react";
+import ConfigConfigurator from "./clash/configurator";
+
+const configurator = new ConfigConfigurator();
 
 export default function App() {
-    console.log(baseConfig)
+    const [providers, setProviders] = useState<ProxyProvider[]>([]);
+
     return <>
+
         <pre>
-            <code>{JSON.stringify(baseConfig, null, 2)}</code>
+            <code>{configurator.content}</code>
         </pre>
     </>
 }
