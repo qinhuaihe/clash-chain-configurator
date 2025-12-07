@@ -1,0 +1,261 @@
+import { useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from './ui/dialog';
+import { Button } from './ui/button';
+import { Label } from './ui/label';
+import { toast } from './ui/sonner';
+
+interface ImportProxyNodesDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onImport: (nodes: ProxyNode[]) => void;
+    existingNames: string[];
+}
+
+function parseVmessLink(link: string): ProxyNode | null {
+    try {
+        const encoded = link.replace('vmess://', '');
+        const decoded = JSON.parse(atob(encoded));
+        return {
+            name: decoded.ps || decoded.name || `vmess-${decoded.add}`,
+            type: 'vmess',
+            server: decoded.add,
+            port: Number(decoded.port),
+            uuid: decoded.id,
+            alterId: Number(decoded.aid) || 0,
+            cipher: 'auto',
+            tls: decoded.tls === 'tls',
+            servername: decoded.sni || decoded.host,
+            network: decoded.net || 'tcp',
+            udp: true,
+            'skip-cert-verify': true,
+            ...(decoded.net === 'ws' && {
+                'ws-opts': {
+                    path: decoded.path || '/',
+                    headers: decoded.host ? { Host: decoded.host } : undefined,
+                },
+            }),
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseVlessLink(link: string): ProxyNode | null {
+    try {
+        const url = new URL(link);
+        const params = url.searchParams;
+        return {
+            name: decodeURIComponent(url.hash.slice(1)) || `vless-${url.hostname}`,
+            type: 'vless',
+            server: url.hostname,
+            port: Number(url.port) || 443,
+            uuid: url.username,
+            encryption: '',
+            flow: params.get('flow') || undefined,
+            tls: params.get('security') === 'tls' || params.get('security') === 'reality',
+            servername: params.get('sni') || undefined,
+            network: params.get('type') || 'tcp',
+            udp: true,
+            'skip-cert-verify': true,
+            ...(params.get('type') === 'ws' && {
+                'ws-opts': {
+                    path: params.get('path') || '/',
+                    headers: params.get('host') ? { Host: params.get('host')! } : undefined,
+                },
+            }),
+            ...(params.get('security') === 'reality' && {
+                'reality-opts': {
+                    'public-key': params.get('pbk') || '',
+                    'short-id': params.get('sid') || '',
+                },
+                'client-fingerprint': params.get('fp') || 'chrome',
+            }),
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseTrojanLink(link: string): ProxyNode | null {
+    try {
+        const url = new URL(link);
+        const params = url.searchParams;
+        return {
+            name: decodeURIComponent(url.hash.slice(1)) || `trojan-${url.hostname}`,
+            type: 'trojan',
+            server: url.hostname,
+            port: Number(url.port) || 443,
+            password: decodeURIComponent(url.username),
+            sni: params.get('sni') || url.hostname,
+            network: params.get('type') || 'tcp',
+            udp: true,
+            'skip-cert-verify': true,
+            ...(params.get('type') === 'ws' && {
+                'ws-opts': {
+                    path: params.get('path') || '/',
+                    headers: params.get('host') ? { Host: params.get('host')! } : undefined,
+                },
+            }),
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseSsLink(link: string): ProxyNode | null {
+    try {
+        let encoded = link.replace('ss://', '');
+        let name = '';
+        const hashIndex = encoded.indexOf('#');
+        if (hashIndex !== -1) {
+            name = decodeURIComponent(encoded.slice(hashIndex + 1));
+            encoded = encoded.slice(0, hashIndex);
+        }
+
+        const atIndex = encoded.lastIndexOf('@');
+        let userInfo: string, serverInfo: string;
+
+        if (atIndex !== -1) {
+            userInfo = encoded.slice(0, atIndex);
+            serverInfo = encoded.slice(atIndex + 1);
+        } else {
+            const decoded = atob(encoded);
+            const parts = decoded.split('@');
+            userInfo = parts[0];
+            serverInfo = parts[1];
+        }
+
+        let cipher: string, password: string;
+        try {
+            const decodedUserInfo = atob(userInfo);
+            [cipher, password] = decodedUserInfo.split(':');
+        } catch {
+            [cipher, password] = userInfo.split(':');
+        }
+
+        const [server, port] = serverInfo.split(':');
+
+        return {
+            name: name || `ss-${server}`,
+            type: 'ss',
+            server,
+            port: Number(port),
+            cipher,
+            password,
+            udp: true,
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseHysteria2Link(link: string): ProxyNode | null {
+    try {
+        const url = new URL(link);
+        const params = url.searchParams;
+        return {
+            name: decodeURIComponent(url.hash.slice(1)) || `hy2-${url.hostname}`,
+            type: 'hysteria2',
+            server: url.hostname,
+            port: Number(url.port) || 443,
+            password: decodeURIComponent(url.username),
+            sni: params.get('sni') || url.hostname,
+            obfs: params.get('obfs') || undefined,
+            'obfs-password': params.get('obfs-password') || undefined,
+            'skip-cert-verify': true,
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseNodeLink(link: string): ProxyNode | null {
+    const trimmed = link.trim();
+    if (trimmed.startsWith('vmess://')) return parseVmessLink(trimmed);
+    if (trimmed.startsWith('vless://')) return parseVlessLink(trimmed);
+    if (trimmed.startsWith('trojan://')) return parseTrojanLink(trimmed);
+    if (trimmed.startsWith('ss://')) return parseSsLink(trimmed);
+    if (trimmed.startsWith('hysteria2://') || trimmed.startsWith('hy2://')) return parseHysteria2Link(trimmed);
+    return null;
+}
+
+export default function ImportProxyNodesDialog({
+    open,
+    onOpenChange,
+    onImport,
+    existingNames,
+}: ImportProxyNodesDialogProps) {
+    const [input, setInput] = useState('');
+
+    const handleImport = () => {
+        const lines = input.split('\n').filter(line => line.trim());
+        const nodes: ProxyNode[] = [];
+        const errors: string[] = [];
+
+        for (const line of lines) {
+            const node = parseNodeLink(line);
+            if (node) {
+                let name = node.name;
+                let counter = 1;
+                while (existingNames.includes(name) || nodes.some(n => n.name === name)) {
+                    name = `${node.name}-${counter++}`;
+                }
+                node.name = name;
+                nodes.push(node);
+            } else {
+                errors.push(line.slice(0, 50) + (line.length > 50 ? '...' : ''));
+            }
+        }
+
+        if (nodes.length > 0) {
+            onImport(nodes);
+            toast.success(`Imported ${nodes.length} node(s)`, {
+                description: errors.length > 0 ? `${errors.length} link(s) failed to parse` : undefined,
+            });
+            setInput('');
+            onOpenChange(false);
+        } else {
+            toast.error('No valid nodes found', {
+                description: 'Please check your input format (vmess://, vless://, trojan://, ss://, hy2://)',
+            });
+        }
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>Import Proxy Nodes</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                    <div className="grid gap-1.5">
+                        <Label>Paste node links (one per line)</Label>
+                        <textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="vmess://...&#10;vless://...&#10;trojan://...&#10;ss://...&#10;hy2://..."
+                            className="min-h-[200px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        Supported formats: vmess://, vless://, trojan://, ss://, hysteria2://, hy2://
+                    </p>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleImport} disabled={!input.trim()}>
+                        Import
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}

@@ -17,7 +17,7 @@ dns:
 proxy-providers: []
 proxies: []
 proxy-groups: []
-    rules:
+rules:
     - 'DOMAIN-SUFFIX,x.com,我的代理' # 指定所有x.com结尾的域名流量都走“我的代理”
     - 'DOMAIN-SUFFIX,services.googleapis.cn,我的代理'
     - 'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,我的代理'

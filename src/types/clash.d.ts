@@ -1,6 +1,7 @@
 interface Airport {
     name: string;
     path: string;
+    interval?: number;
 }
 
 interface HttpProxyNode {
