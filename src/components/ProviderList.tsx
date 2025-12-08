@@ -47,8 +47,8 @@ export default function ProviderList({ providers, onRemove, onEdit }: ProviderLi
                     <CardContent className="space-y-2">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Link className="h-4 w-4 flex-shrink-0" />
-                            <span className="truncate" title={provider.path}>
-                                {provider.path || 'No URL set'}
+                            <span className="truncate" title={provider.url}>
+                                {provider.url || 'No URL set'}
                             </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">

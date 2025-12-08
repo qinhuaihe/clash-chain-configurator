@@ -15,12 +15,13 @@ export default class ConfigConfigurator {
         this.config['proxy-providers'] = {};
         providers.forEach(x => {
             this.config['proxy-providers'][x.name] = {
-                type: 'http',
-                path: x.path,
-                interval: x.interval || 3600,
+                type: x.type,
+                url: x.url,
+                interval: x.interval,
                 override: {
                     "additional-prefix": providers.length > 1 ? x.name : undefined
-                }
+                },
+                payload: x.payload,
             };
         });
 

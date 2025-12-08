@@ -1026,12 +1026,12 @@ interface ProxyOverrideConfig {
  * 代理提供者 (Proxy Provider) 的配置项
  */
 interface ProxyProvider {
-    /** 代理提供者类型。通常为 http, file, 或 mihomo 提供的其他类型 */
-    type: 'http' | 'file' | string;
-    /** 远程订阅 URL。如果 type 为 file 则忽略 */
+    /** 代理提供者类型。通常为 http, file, inline */
+    type: 'http' | 'file' | 'inline';
+    /** 远程订阅 URL。如果 type 为 file 或 inline 则忽略 */
     url?: string;
     /** 本地文件路径，用于缓存或 file 类型的提供者 */
-    path: string;
+    path?: string;
     /** 自动更新订阅的间隔时间（秒） */
     interval: number;
     /** 用于下载订阅文件的代理，例如 DIRECT 或其他代理组/节点 */
@@ -1060,8 +1060,7 @@ interface ProxyProvider {
     'exclude-type'?: string;
 
     /** [可选] 嵌入在配置中的代理节点定义，仅在特定场景下用于补充 */
-    payload?: Array<ProxyNode>;
-    // 注意：这里的 ProxyNode 应该是你之前定义的所有代理类型的联合类型
+    payload?: string;
 }
 
 interface ProxyProviderExtend extends ProxyProvider {
