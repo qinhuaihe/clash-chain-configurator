@@ -14,10 +14,9 @@ export default class ConfigConfigurator {
     setProviders(providers: ProxyProviderExtend[]) {
         this.config['proxy-providers'] = {};
         providers.forEach(x => {
-            console.log('xxxxxxxx', x.name, x.payload);
             this.config['proxy-providers'][x.name] = {
                 type: x.type,
-                url: x.url,
+                url: x.url || undefined,
                 interval: x.interval,
                 override: {
                     "additional-prefix": providers.length > 1 ? x.name : undefined
@@ -41,7 +40,6 @@ export default class ConfigConfigurator {
         if (this.config.proxies.length) {
             this.config.proxies.forEach(x => x['dialer-proxy'] = '手动选择');
         }
-        console.log(providerKeys);
         this.config['proxy-groups'] = [
             { name: '我的代理', type: 'select', proxies: [...this.config.proxies.map(x => x.name), '手动选择'] },
             { name: '手动选择', type: 'select', use: [...providerKeys], proxies: ['自动选择'] },

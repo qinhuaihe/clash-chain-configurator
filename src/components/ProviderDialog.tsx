@@ -291,7 +291,6 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                 if (containsProxyLinks(decoded)) {
                     const yamlContent = parseProxyLinksToYaml(decoded);
                     if (yamlContent) {
-                        console.log(yamlContent);
                         setValue('payloadContent', yamlContent);
                         toast.success('代理链接已解码并转换为YAML');
                         return;
