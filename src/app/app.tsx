@@ -11,6 +11,11 @@ import { Plus, Import } from "lucide-react";
 
 const configurator = new ConfigConfigurator();
 
+const STORAGE_KEYS = {
+    PROVIDERS: 'clash-chain-providers',
+    PROXY_NODES: 'clash-chain-proxy-nodes'
+};
+
 export default function App() {
     const [content, setContent] = useState(configurator.content);
     const [providers, setProviders] = useState<ProxyProviderExtend[]>([]);
@@ -23,13 +28,38 @@ export default function App() {
     const [importDialogOpen, setImportDialogOpen] = useState(false);
 
     useEffect(() => {
+        try {
+            const savedProviders = localStorage.getItem(STORAGE_KEYS.PROVIDERS);
+            const savedProxyNodes = localStorage.getItem(STORAGE_KEYS.PROXY_NODES);
+            if (savedProviders) {
+                setProviders(JSON.parse(savedProviders));
+            }
+            if (savedProxyNodes) {
+                setProxyNodes(JSON.parse(savedProxyNodes));
+            }
+        } catch (e) {
+            console.error('Failed to load from localStorage:', e);
+        }
+    }, []);
+
+    useEffect(() => {
         configurator.setProviders(providers);
         setContent(configurator.content);
+        try {
+            localStorage.setItem(STORAGE_KEYS.PROVIDERS, JSON.stringify(providers));
+        } catch (e) {
+            console.error('Failed to save providers:', e);
+        }
     }, [providers]);
 
     useEffect(() => {
         configurator.setFinalProxyNodes(proxyNodes);
         setContent(configurator.content);
+        try {
+            localStorage.setItem(STORAGE_KEYS.PROXY_NODES, JSON.stringify(proxyNodes));
+        } catch (e) {
+            console.error('Failed to save proxy nodes:', e);
+        }
     }, [proxyNodes]);
 
     configurator.setProviders(providers);
