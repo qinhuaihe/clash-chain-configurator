@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import yaml from 'js-yaml';
 import {
     Dialog,
     DialogContent,
@@ -15,11 +16,200 @@ import { Button } from './ui/button';
 import { toast } from './ui/sonner';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
+function parseVmessLink(link: string): ProxyNode | null {
+    try {
+        const encoded = link.replace('vmess://', '');
+        const decoded = JSON.parse(atob(encoded));
+        return {
+            name: decoded.ps || decoded.name || `vmess-${decoded.add}`,
+            type: 'vmess',
+            server: decoded.add,
+            port: Number(decoded.port),
+            uuid: decoded.id,
+            alterId: Number(decoded.aid) || 0,
+            cipher: 'auto',
+            tls: decoded.tls === 'tls',
+            servername: decoded.sni || decoded.host,
+            network: decoded.net || 'tcp',
+            udp: true,
+            'skip-cert-verify': true,
+            ...(decoded.net === 'ws' && {
+                'ws-opts': {
+                    path: decoded.path || '/',
+                    headers: decoded.host ? { Host: decoded.host } : undefined,
+                },
+            }),
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseVlessLink(link: string): ProxyNode | null {
+    try {
+        const url = new URL(link);
+        const params = url.searchParams;
+        return {
+            name: decodeURIComponent(url.hash.slice(1)) || `vless-${url.hostname}`,
+            type: 'vless',
+            server: url.hostname,
+            port: Number(url.port) || 443,
+            uuid: url.username,
+            encryption: '',
+            flow: params.get('flow') || undefined,
+            tls: params.get('security') === 'tls' || params.get('security') === 'reality',
+            servername: params.get('sni') || undefined,
+            network: params.get('type') || 'tcp',
+            udp: true,
+            'skip-cert-verify': true,
+            ...(params.get('type') === 'ws' && {
+                'ws-opts': {
+                    path: params.get('path') || '/',
+                    headers: params.get('host') ? { Host: params.get('host')! } : undefined,
+                },
+            }),
+            ...(params.get('security') === 'reality' && {
+                'reality-opts': {
+                    'public-key': params.get('pbk') || '',
+                    'short-id': params.get('sid') || '',
+                },
+                'client-fingerprint': params.get('fp') || 'chrome',
+            }),
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseTrojanLink(link: string): ProxyNode | null {
+    try {
+        const url = new URL(link);
+        const params = url.searchParams;
+        return {
+            name: decodeURIComponent(url.hash.slice(1)) || `trojan-${url.hostname}`,
+            type: 'trojan',
+            server: url.hostname,
+            port: Number(url.port) || 443,
+            password: decodeURIComponent(url.username),
+            sni: params.get('sni') || url.hostname,
+            network: params.get('type') || 'tcp',
+            udp: true,
+            'skip-cert-verify': true,
+            ...(params.get('type') === 'ws' && {
+                'ws-opts': {
+                    path: params.get('path') || '/',
+                    headers: params.get('host') ? { Host: params.get('host')! } : undefined,
+                },
+            }),
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseSsLink(link: string): ProxyNode | null {
+    try {
+        let encoded = link.replace('ss://', '');
+        let name = '';
+        const hashIndex = encoded.indexOf('#');
+        if (hashIndex !== -1) {
+            name = decodeURIComponent(encoded.slice(hashIndex + 1));
+            encoded = encoded.slice(0, hashIndex);
+        }
+        const atIndex = encoded.lastIndexOf('@');
+        let userInfo: string, serverInfo: string;
+        if (atIndex !== -1) {
+            userInfo = encoded.slice(0, atIndex);
+            serverInfo = encoded.slice(atIndex + 1);
+        } else {
+            const decoded = atob(encoded);
+            const parts = decoded.split('@');
+            userInfo = parts[0];
+            serverInfo = parts[1];
+        }
+        let cipher: string, password: string;
+        try {
+            const decodedUserInfo = atob(userInfo);
+            [cipher, password] = decodedUserInfo.split(':');
+        } catch {
+            [cipher, password] = userInfo.split(':');
+        }
+        const [server, port] = serverInfo.split(':');
+        return {
+            name: name || `ss-${server}`,
+            type: 'ss',
+            server,
+            port: Number(port),
+            cipher,
+            password,
+            udp: true,
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseHysteria2Link(link: string): ProxyNode | null {
+    try {
+        const url = new URL(link);
+        const params = url.searchParams;
+        return {
+            name: decodeURIComponent(url.hash.slice(1)) || `hy2-${url.hostname}`,
+            type: 'hysteria2',
+            server: url.hostname,
+            port: Number(url.port) || 443,
+            password: decodeURIComponent(url.username),
+            sni: params.get('sni') || url.hostname,
+            obfs: params.get('obfs') || undefined,
+            'obfs-password': params.get('obfs-password') || undefined,
+            'skip-cert-verify': true,
+        } as ProxyNode;
+    } catch {
+        return null;
+    }
+}
+
+function parseNodeLink(link: string): ProxyNode | null {
+    const trimmed = link.trim();
+    if (trimmed.startsWith('vmess://')) return parseVmessLink(trimmed);
+    if (trimmed.startsWith('vless://')) return parseVlessLink(trimmed);
+    if (trimmed.startsWith('trojan://')) return parseTrojanLink(trimmed);
+    if (trimmed.startsWith('ss://')) return parseSsLink(trimmed);
+    if (trimmed.startsWith('hysteria2://') || trimmed.startsWith('hy2://')) return parseHysteria2Link(trimmed);
+    return null;
+}
+
+function containsProxyLinks(text: string): boolean {
+    const lines = text.split('\n');
+    return lines.some(line => {
+        const trimmed = line.trim();
+        return trimmed.startsWith('vmess://') ||
+            trimmed.startsWith('vless://') ||
+            trimmed.startsWith('trojan://') ||
+            trimmed.startsWith('ss://') ||
+            trimmed.startsWith('hysteria2://') ||
+            trimmed.startsWith('hy2://');
+    });
+}
+
+function parseProxyLinksToYaml(text: string): string | null {
+    const lines = text.split('\n').filter(line => line.trim());
+    const nodes: ProxyNode[] = [];
+    for (const line of lines) {
+        const node = parseNodeLink(line);
+        if (node) {
+            nodes.push(node);
+        }
+    }
+    if (nodes.length === 0) return null;
+    return yaml.dump(nodes, { lineWidth: -1, flowLevel: 1 });
+}
+
 const providerSchema = z.object({
     name: z.string().min(1, "Name is required"),
     type: z.enum(['http', 'inline']),
     url: z.string().optional(),
-    payload: z.string().optional(),
+    payloadContent: z.string().optional(),
     interval: z.coerce.number().min(60, "Interval must be at least 60 seconds").default(3600)
 }).refine((data) => {
     if (data.type === 'http') {
@@ -44,7 +234,7 @@ const providerSchema = z.object({
     path: ["url"]
 }).refine((data) => {
     if (data.type === 'inline') {
-        return data.payload && data.payload.trim().length > 0;
+        return data.payloadContent && data.payloadContent.trim().length > 0;
     }
     return true;
 }, {
@@ -65,18 +255,62 @@ interface ProviderDialogProps {
 export default function ProviderDialog({ open, onOpenChange, provider, onSave, existingNames }: ProviderDialogProps) {
     const isEditing = !!provider;
 
-    const { register, handleSubmit, reset, control, watch, formState: { errors } } = useForm<ProviderFormValues>({
+    const { register, handleSubmit, reset, control, watch, setValue, formState: { errors } } = useForm<ProviderFormValues>({
         resolver: zodResolver(providerSchema) as any,
         defaultValues: {
             name: '',
             type: 'http',
             url: '',
-            payload: '',
+            payloadContent: '',
             interval: 3600
         }
     });
 
     const watchType = watch('type');
+
+    const isBase64 = (str: string): boolean => {
+        if (!str || str.length === 0) return false;
+        const trimmed = str.trim();
+        const base64Regex = /^[A-Za-z0-9+/]*={0,2}$/;
+        if (!base64Regex.test(trimmed)) return false;
+        if (trimmed.length % 4 !== 0) return false;
+        try {
+            const decoded = atob(trimmed);
+            return decoded.length > 0 && /[\x20-\x7E\r\n\t]/.test(decoded);
+        } catch {
+            return false;
+        }
+    };
+
+    const handlePayloadPaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const text = e.clipboardData.getData('text/plain');
+        if (text && isBase64(text)) {
+            e.preventDefault();
+            try {
+                const decoded = atob(text.trim());
+                if (containsProxyLinks(decoded)) {
+                    const yamlContent = parseProxyLinksToYaml(decoded);
+                    if (yamlContent) {
+                        console.log(yamlContent);
+                        setValue('payloadContent', yamlContent);
+                        toast.success('Proxy links decoded and converted to YAML');
+                        return;
+                    }
+                }
+                setValue('payloadContent', decoded);
+                toast.success('Base64 content decoded');
+            } catch {
+                // If decoding fails, let the default paste happen
+            }
+        } else if (text && containsProxyLinks(text)) {
+            e.preventDefault();
+            const yamlContent = parseProxyLinksToYaml(text);
+            if (yamlContent) {
+                setValue('payloadContent', yamlContent);
+                toast.success('Proxy links converted to YAML');
+            }
+        }
+    }, [setValue]);
 
     useEffect(() => {
         if (open && provider) {
@@ -84,7 +318,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                 name: provider.name,
                 type: (provider.type as 'http' | 'inline') || 'http',
                 url: provider.url || '',
-                payload: provider.payload || '',
+                payloadContent: provider.payloadContent || '',
                 interval: provider.interval || 3600
             });
         } else if (open) {
@@ -92,7 +326,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                 name: '',
                 type: 'http',
                 url: '',
-                payload: '',
+                payloadContent: '',
                 interval: 3600
             });
         }
@@ -175,12 +409,13 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                             <Label htmlFor="payload">Payload <span className="text-destructive">*</span></Label>
                             <textarea
                                 id="payload"
-                                {...register('payload')}
-                                placeholder="Enter proxy nodes YAML..."
-                                className={`min-h-[120px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${errors.payload ? "border-destructive" : "border-input"}`}
+                                {...register('payloadContent')}
+                                onPaste={handlePayloadPaste}
+                                placeholder="Enter proxy nodes YAML... (base64 will be auto-decoded)"
+                                className={`min-h-[120px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${errors.payloadContent ? "border-destructive" : "border-input"}`}
                             />
-                            {errors.payload && (
-                                <span className="text-xs text-destructive">{errors.payload.message}</span>
+                            {errors.payloadContent && (
+                                <span className="text-xs text-destructive">{errors.payloadContent.message}</span>
                             )}
                         </div>
                     )}

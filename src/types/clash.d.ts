@@ -1060,11 +1060,12 @@ interface ProxyProvider {
     'exclude-type'?: string;
 
     /** [可选] 嵌入在配置中的代理节点定义，仅在特定场景下用于补充 */
-    payload?: string;
+    payload?: ProxyNode[];
 }
 
 interface ProxyProviderExtend extends ProxyProvider {
     name: string;
+    payloadContent?: string;
 }
 
 /**
@@ -1143,4 +1144,7 @@ interface ClashConfig {
     'proxy-providers': ClashProxyProviders;
     'proxy-groups': ProxyGroup[];
     proxies: ProxyNode[];
+    rules: string[];
+    dns: { [key: string]: any; };
+    [key: string]: any;
 }
