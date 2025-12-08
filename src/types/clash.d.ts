@@ -1,9 +1,3 @@
-interface Airport {
-    name: string;
-    path: string;
-    interval?: number;
-}
-
 interface HttpProxyNode {
     /** 节点名称 */
     name: string;
@@ -1068,6 +1062,10 @@ interface ProxyProvider {
     /** [可选] 嵌入在配置中的代理节点定义，仅在特定场景下用于补充 */
     payload?: Array<ProxyNode>;
     // 注意：这里的 ProxyNode 应该是你之前定义的所有代理类型的联合类型
+}
+
+interface ProxyProviderExtend extends ProxyProvider {
+    name: string;
 }
 
 /**

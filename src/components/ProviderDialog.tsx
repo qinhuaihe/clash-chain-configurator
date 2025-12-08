@@ -25,8 +25,8 @@ type ProviderFormValues = z.infer<typeof providerSchema>;
 interface ProviderDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    provider?: Airport | null;
-    onSave: (provider: Airport) => void;
+    provider?: ProxyProviderExtend | null;
+    onSave: (provider: ProxyProviderExtend) => void;
     existingNames: string[];
 }
 
@@ -70,7 +70,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
             return;
         }
         
-        onSave(data as Airport);
+        onSave(data as ProxyProviderExtend);
         onOpenChange(false);
     };
 

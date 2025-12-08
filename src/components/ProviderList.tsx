@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Trash2, Clock, Link, Pencil } from 'lucide-react';
 
 interface ProviderListProps {
-    providers: Airport[];
+    providers: ProxyProviderExtend[];
     onRemove: (index: number) => void;
     onEdit: (index: number) => void;
 }

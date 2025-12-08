@@ -13,7 +13,7 @@ const configurator = new ConfigConfigurator();
 
 export default function App() {
     const [content, setContent] = useState(configurator.content);
-    const [providers, setProviders] = useState<Airport[]>([{ name: '机场1', path: '', interval: 3600 }]);
+    const [providers, setProviders] = useState<ProxyProviderExtend[]>([]);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -23,7 +23,7 @@ export default function App() {
     const [importDialogOpen, setImportDialogOpen] = useState(false);
 
     useEffect(() => {
-        configurator.setAirports(providers);
+        configurator.setProviders(providers);
         setContent(configurator.content);
     }, [providers]);
 
@@ -32,7 +32,7 @@ export default function App() {
         setContent(configurator.content);
     }, [proxyNodes]);
 
-    configurator.setAirports(providers);
+    configurator.setProviders(providers);
 
     const handleRemoveProvider = (index: number) => {
         setProviders(providers.filter((_, i) => i !== index));
@@ -48,7 +48,7 @@ export default function App() {
         setDialogOpen(true);
     };
 
-    const handleSaveProvider = (provider: Airport) => {
+    const handleSaveProvider = (provider: ProxyProviderExtend) => {
         if (editingIndex !== null) {
             const newProviders = [...providers];
             newProviders[editingIndex] = provider;

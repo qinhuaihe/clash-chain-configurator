@@ -2,7 +2,7 @@ import baseConfig from './baseConfig.yaml';
 import jsyaml from 'js-yaml';
 
 export type Options = {
-    airports: Airport[];
+    providers: ProxyProviderExtend[];
     finalProxyNodes: ProxyNode;
 }
 
@@ -11,15 +11,15 @@ export default class ConfigConfigurator {
 
     constructor() { }
 
-    setAirports(airports: Airport[]) {
+    setProviders(providers: ProxyProviderExtend[]) {
         this.config['proxy-providers'] = {};
-        airports.forEach(x => {
+        providers.forEach(x => {
             this.config['proxy-providers'][x.name] = {
-                type: 'file',
+                type: 'http',
                 path: x.path,
                 interval: x.interval || 3600,
                 override: {
-                    "additional-prefix": airports.length > 1 ? x.name : undefined
+                    "additional-prefix": providers.length > 1 ? x.name : undefined
                 }
             };
         });
