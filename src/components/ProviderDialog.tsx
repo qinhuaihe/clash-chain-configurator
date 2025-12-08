@@ -13,13 +13,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
 import { toast } from './ui/sonner';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from './ui/select';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 const providerSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -128,7 +122,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="grid gap-1.5">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name">Name <span className="text-destructive">*</span></Label>
                         <Input
                             id="name"
                             {...register('name')}
@@ -140,26 +134,31 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                         )}
                     </div>
                     <div className="grid gap-1.5">
-                        <Label htmlFor="type">Type</Label>
+                        <Label>Type</Label>
                         <Controller
                             name="type"
                             control={control}
                             render={({ field }) => (
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="http">HTTP</SelectItem>
-                                        <SelectItem value="inline">Inline</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <RadioGroup
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    className="flex gap-4"
+                                >
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="http" id="type-http" />
+                                        <Label htmlFor="type-http" className="font-normal cursor-pointer">HTTP</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="inline" id="type-inline" />
+                                        <Label htmlFor="type-inline" className="font-normal cursor-pointer">Inline</Label>
+                                    </div>
+                                </RadioGroup>
                             )}
                         />
                     </div>
                     {watchType === 'http' && (
                         <div className="grid gap-1.5">
-                            <Label htmlFor="url">URL</Label>
+                            <Label htmlFor="url">URL <span className="text-destructive">*</span></Label>
                             <Input
                                 id="url"
                                 {...register('url')}
@@ -173,7 +172,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                     )}
                     {watchType === 'inline' && (
                         <div className="grid gap-1.5">
-                            <Label htmlFor="payload">Payload</Label>
+                            <Label htmlFor="payload">Payload <span className="text-destructive">*</span></Label>
                             <textarea
                                 id="payload"
                                 {...register('payload')}
@@ -186,7 +185,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                         </div>
                     )}
                     <div className="grid gap-1.5">
-                        <Label htmlFor="interval">Interval (seconds)</Label>
+                        <Label htmlFor="interval">Interval (seconds) <span className="text-destructive">*</span></Label>
                         <Input
                             id="interval"
                             type="number"

@@ -94,7 +94,7 @@ export default function App() {
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-semibold">Provider List</h2>
                     <Button onClick={handleAddProvider}>
-                        <Plus className="mr-2 h-4 w-4" /> Add Provider
+                        <Plus className="mr-2 h-4 w-4" /> Add
                     </Button>
                 </div>
                 <ProviderList 
@@ -120,7 +120,7 @@ export default function App() {
                             <Import className="mr-2 h-4 w-4" /> Import
                         </Button>
                         <Button onClick={handleAddProxyNode}>
-                            <Plus className="mr-2 h-4 w-4" /> Add Proxy Node
+                            <Plus className="mr-2 h-4 w-4" /> Add
                         </Button>
                     </div>
                 </div>

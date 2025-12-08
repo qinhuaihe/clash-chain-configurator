@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import { Trash2, Clock, Link, Pencil } from 'lucide-react';
+import { Trash2, Clock, Link, Pencil, FileText } from 'lucide-react';
 
 interface ProviderListProps {
     providers: ProxyProviderExtend[];
@@ -44,17 +44,31 @@ export default function ProviderList({ providers, onRemove, onEdit }: ProviderLi
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Link className="h-4 w-4 flex-shrink-0" />
-                            <span className="truncate" title={provider.url}>
-                                {provider.url || 'No URL set'}
+                    <CardContent className="space-y-2 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${provider.type === 'inline' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'}`}>
+                                {provider.type || 'http'}
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <Clock className="h-3.5 w-3.5" />
+                                {provider.interval || 3600}s
                             </span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="h-4 w-4 flex-shrink-0" />
-                            <span>Interval: {provider.interval || 3600}s</span>
-                        </div>
+                        {provider.type === 'inline' ? (
+                            <div className="flex items-start gap-2">
+                                <FileText className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                                <span className="truncate line-clamp-2 break-all">
+                                    {provider.payload ? `${provider.payload.slice(0, 80)}${provider.payload.length > 80 ? '...' : ''}` : 'No payload'}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Link className="h-4 w-4 flex-shrink-0" />
+                                <span className="truncate" title={provider.path}>
+                                    {provider.path || 'No URL set'}
+                                </span>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             ))}
