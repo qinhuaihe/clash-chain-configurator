@@ -31,7 +31,7 @@ export default function FinalProxyNodeList({ proxyNodes, onRemove, onEdit }: Fin
     if (proxyNodes.length === 0) {
         return (
             <div className="text-center text-muted-foreground py-8">
-                No proxy nodes added yet.
+                暂无代理节点
             </div>
         );
     }
@@ -79,7 +79,7 @@ export default function FinalProxyNodeList({ proxyNodes, onRemove, onEdit }: Fin
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Shield className="h-4 w-4 flex-shrink-0" />
                                 <span>
-                                    {node.tls ? 'TLS Enabled' : 'TLS Available'}
+                                    {node.tls ? 'TLS已启用' : 'TLS可用'}
                                     {(node as any).sni || (node as any).servername ? ` (${(node as any).sni || (node as any).servername})` : ''}
                                 </span>
                             </div>

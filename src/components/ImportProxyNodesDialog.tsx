@@ -246,23 +246,23 @@ export default function ImportProxyNodesDialog({
             e.preventDefault();
             const blob = imageItem.getAsFile();
             if (!blob) {
-                toast.error('Failed to read image');
+                toast.error('读取图片失败');
                 return;
             }
             
             const decoded = await decodeQRFromImage(blob);
             if (!decoded) {
-                toast.error('Failed to decode QR code from image');
+                toast.error('从图片解码二维码失败');
                 return;
             }
             
             if (!isValidNodeLink(decoded)) {
-                toast.error('QR code does not contain a valid proxy node link');
+                toast.error('二维码不包含有效的代理节点链接');
                 return;
             }
             
             setInput(prev => prev ? prev + '\n' + decoded : decoded);
-            toast.success('QR code decoded successfully');
+            toast.success('二维码解码成功');
         }
     }, []);
 
@@ -288,14 +288,14 @@ export default function ImportProxyNodesDialog({
 
         if (nodes.length > 0) {
             onImport(nodes);
-            toast.success(`Imported ${nodes.length} node(s)`, {
-                description: errors.length > 0 ? `${errors.length} link(s) failed to parse` : undefined,
+            toast.success(`已导入 ${nodes.length} 个节点`, {
+                description: errors.length > 0 ? `${errors.length} 个链接解析失败` : undefined,
             });
             setInput('');
             onOpenChange(false);
         } else {
-            toast.error('No valid nodes found', {
-                description: 'Please check your input format (vmess://, vless://, trojan://, ss://, hy2://)',
+            toast.error('未找到有效节点', {
+                description: '请检查输入格式 (vmess://, vless://, trojan://, ss://, hy2://)',
             });
         }
     };
@@ -304,29 +304,29 @@ export default function ImportProxyNodesDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Import Proxy Nodes</DialogTitle>
+                    <DialogTitle>导入代理节点</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                     <div className="grid gap-1.5">
-                        <Label>Paste node links (one per line)</Label>
+                        <Label>粘贴节点链接(每行一个)</Label>
                         <textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onPaste={handlePaste}
-                            placeholder="vmess://...&#10;vless://...&#10;trojan://...&#10;ss://...&#10;hy2://...&#10;(or paste QR code image)"
+                            placeholder="vmess://...&#10;vless://...&#10;trojan://...&#10;ss://...&#10;hy2://...&#10;(或粘贴二维码图片)"
                             className="min-h-[200px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                        Supported formats: vmess://, vless://, trojan://, ss://, hysteria2://, hy2://
+                        支持的格式: vmess://, vless://, trojan://, ss://, hysteria2://, hy2://
                     </p>
                 </div>
                 <DialogFooter>
                     <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                        Cancel
+                        取消
                     </Button>
                     <Button onClick={handleImport} disabled={!input.trim()}>
-                        Import
+                        导入
                     </Button>
                 </DialogFooter>
             </DialogContent>

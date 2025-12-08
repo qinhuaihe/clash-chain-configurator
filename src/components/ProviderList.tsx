@@ -12,7 +12,7 @@ export default function ProviderList({ providers, onRemove, onEdit }: ProviderLi
     if (providers.length === 0) {
         return (
             <div className="text-center text-muted-foreground py-8">
-                No providers added yet.
+                暂无机场
             </div>
         );
     }
@@ -58,14 +58,14 @@ export default function ProviderList({ providers, onRemove, onEdit }: ProviderLi
                             <div className="flex items-start gap-2">
                                 <FileText className="h-4 w-4 flex-shrink-0 mt-0.5" />
                                 <span className="truncate line-clamp-2 break-all">
-                                    {provider.payload ? `${provider.payload.slice(0, 80)}${provider.payload.length > 80 ? '...' : ''}` : 'No payload'}
+                                    {provider.payload ? `${provider.payload.slice(0, 80)}${provider.payload.length > 80 ? '...' : ''}` : '无节点内容'}
                                 </span>
                             </div>
                         ) : (
                             <div className="flex items-center gap-2">
                                 <Link className="h-4 w-4 flex-shrink-0" />
                                 <span className="truncate" title={provider.path}>
-                                    {provider.path || 'No URL set'}
+                                    {provider.path || '未设置订阅地址'}
                                 </span>
                             </div>
                         )}

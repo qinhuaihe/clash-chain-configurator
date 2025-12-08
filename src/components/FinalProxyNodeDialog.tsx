@@ -225,8 +225,8 @@ export default function FinalProxyNodeDialog({
             : existingNames;
 
         if (namesToCheck.includes(data.name)) {
-            toast.error('Proxy name already exists', {
-                description: `A proxy with the name "${data.name}" already exists.`
+            toast.error('代理名称已存在', {
+                description: `名称为"${data.name}"的代理已存在`
             });
             return;
         }
@@ -263,14 +263,14 @@ export default function FinalProxyNodeDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>{isEditing ? 'Edit Proxy Node' : 'Add Proxy Node'}</DialogTitle>
+                    <DialogTitle>{isEditing ? '编辑代理节点' : '添加代理节点'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="grid gap-1.5">
-                        <Label>Proxy Type</Label>
+                        <Label>代理类型</Label>
                         <Select value={proxyType} onValueChange={(v) => handleTypeChange(v as ProxyType)}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select proxy type" />
+                                <SelectValue placeholder="选择代理类型" />
                             </SelectTrigger>
                             <SelectContent>
                                 {PROXY_TYPES.map((type) => (
@@ -309,7 +309,7 @@ export default function FinalProxyNodeDialog({
                                             className={errors[field.name] ? "border-destructive" : ""}
                                         />
                                         {errors[field.name] && (
-                                            <span className="text-xs text-destructive">{field.label} is required</span>
+                                            <span className="text-xs text-destructive">{field.label}不能为空</span>
                                         )}
                                     </>
                                 )}
@@ -319,10 +319,10 @@ export default function FinalProxyNodeDialog({
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
+                            取消
                         </Button>
                         <Button type="submit">
-                            {isEditing ? 'Save' : 'Add'}
+                            {isEditing ? '保存' : '添加'}
                         </Button>
                     </DialogFooter>
                 </form>

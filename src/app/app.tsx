@@ -122,9 +122,9 @@ export default function App() {
     const handleCopyConfig = async () => {
         try {
             await navigator.clipboard.writeText(content);
-            toast.success('Copied to clipboard');
+            toast.success('已复制到剪贴板');
         } catch {
-            toast.error('Failed to copy');
+            toast.error('复制失败');
         }
     };
 
@@ -136,18 +136,18 @@ export default function App() {
         a.download = 'clash-config.yaml';
         a.click();
         URL.revokeObjectURL(url);
-        toast.success('Config downloaded');
+        toast.success('配置已下载');
     };
 
     return (
         <div className="container mx-auto p-4 space-y-8">
-            <h1 className="text-3xl font-bold">Clash Chain Configurator</h1>
+            <h1 className="text-3xl font-bold">Clash 链式代理配置器</h1>
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Provider List</h2>
+                    <h2 className="text-xl font-semibold">机场列表</h2>
                     <Button onClick={handleAddProvider}>
-                        <Plus className="mr-2 h-4 w-4" /> Add
+                        <Plus className="mr-2 h-4 w-4" /> 添加
                     </Button>
                 </div>
                 <ProviderList 
@@ -167,13 +167,13 @@ export default function App() {
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Proxy Nodes</h2>
+                    <h2 className="text-xl font-semibold">代理节点</h2>
                     <div className="flex gap-2">
                         <Button onClick={() => setImportDialogOpen(true)} variant="outline">
-                            <Import className="mr-2 h-4 w-4" /> Import
+                            <Import className="mr-2 h-4 w-4" /> 导入
                         </Button>
                         <Button onClick={handleAddProxyNode}>
-                            <Plus className="mr-2 h-4 w-4" /> Add
+                            <Plus className="mr-2 h-4 w-4" /> 添加
                         </Button>
                     </div>
                 </div>
@@ -203,13 +203,13 @@ export default function App() {
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Generated Config</h2>
+                    <h2 className="text-xl font-semibold">生成的配置</h2>
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={handleCopyConfig}>
-                            <Copy className="mr-2 h-4 w-4" /> Copy
+                            <Copy className="mr-2 h-4 w-4" /> 复制
                         </Button>
                         <Button variant="outline" size="sm" onClick={handleDownloadConfig}>
-                            <Download className="mr-2 h-4 w-4" /> Download
+                            <Download className="mr-2 h-4 w-4" /> 下载
                         </Button>
                     </div>
                 </div>

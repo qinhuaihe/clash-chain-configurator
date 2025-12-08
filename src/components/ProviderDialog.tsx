@@ -206,18 +206,18 @@ function parseProxyLinksToYaml(text: string): string | null {
 }
 
 const providerSchema = z.object({
-    name: z.string().min(1, "Name is required"),
+    name: z.string().min(1, "名称不能为空"),
     type: z.enum(['http', 'inline']),
     url: z.string().optional(),
     payloadContent: z.string().optional(),
-    interval: z.coerce.number().min(60, "Interval must be at least 60 seconds").default(3600)
+    interval: z.coerce.number().min(60, "间隔至少60秒").default(3600)
 }).refine((data) => {
     if (data.type === 'http') {
         return data.url && data.url.length > 0;
     }
     return true;
 }, {
-    message: "URL is required for http type",
+    message: "HTTP类型需要订阅地址",
     path: ["url"]
 }).refine((data) => {
     if (data.type === 'http' && data.url) {
@@ -230,7 +230,7 @@ const providerSchema = z.object({
     }
     return true;
 }, {
-    message: "Must be a valid URL",
+    message: "必须是有效的URL",
     path: ["url"]
 }).refine((data) => {
     if (data.type === 'inline') {
@@ -238,7 +238,7 @@ const providerSchema = z.object({
     }
     return true;
 }, {
-    message: "Payload is required for inline type",
+    message: "内联类型需要节点内容",
     path: ["payload"]
 });
 
@@ -293,12 +293,12 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                     if (yamlContent) {
                         console.log(yamlContent);
                         setValue('payloadContent', yamlContent);
-                        toast.success('Proxy links decoded and converted to YAML');
+                        toast.success('代理链接已解码并转换为YAML');
                         return;
                     }
                 }
                 setValue('payloadContent', decoded);
-                toast.success('Base64 content decoded');
+                toast.success('Base64内容已解码');
             } catch {
                 // If decoding fails, let the default paste happen
             }
@@ -307,7 +307,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
             const yamlContent = parseProxyLinksToYaml(text);
             if (yamlContent) {
                 setValue('payloadContent', yamlContent);
-                toast.success('Proxy links converted to YAML');
+                toast.success('代理链接已转换为YAML');
             }
         }
     }, [setValue]);
@@ -338,8 +338,8 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
             : existingNames;
         
         if (namesToCheck.includes(data.name)) {
-            toast.error('Provider name already exists', {
-                description: `A provider with the name "${data.name}" already exists.`
+            toast.error('机场名称已存在', {
+                description: `名称为"${data.name}"的机场已存在`
             });
             return;
         }
@@ -352,15 +352,15 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{isEditing ? 'Edit Provider' : 'Add Provider'}</DialogTitle>
+                    <DialogTitle>{isEditing ? '编辑机场' : '添加机场'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="grid gap-1.5">
-                        <Label htmlFor="name">Name <span className="text-destructive">*</span></Label>
+                        <Label htmlFor="name">名称 <span className="text-destructive">*</span></Label>
                         <Input
                             id="name"
                             {...register('name')}
-                            placeholder="Provider Name"
+                            placeholder="机场名称"
                             className={errors.name ? "border-destructive" : ""}
                         />
                         {errors.name && (
@@ -368,7 +368,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                         )}
                     </div>
                     <div className="grid gap-1.5">
-                        <Label>Type</Label>
+                        <Label>类型</Label>
                         <Controller
                             name="type"
                             control={control}
@@ -392,7 +392,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                     </div>
                     {watchType === 'http' && (
                         <div className="grid gap-1.5">
-                            <Label htmlFor="url">URL <span className="text-destructive">*</span></Label>
+                            <Label htmlFor="url">订阅地址 <span className="text-destructive">*</span></Label>
                             <Input
                                 id="url"
                                 {...register('url')}
@@ -406,12 +406,12 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                     )}
                     {watchType === 'inline' && (
                         <div className="grid gap-1.5">
-                            <Label htmlFor="payload">Payload <span className="text-destructive">*</span></Label>
+                            <Label htmlFor="payload">节点内容 <span className="text-destructive">*</span></Label>
                             <textarea
                                 id="payload"
                                 {...register('payloadContent')}
                                 onPaste={handlePayloadPaste}
-                                placeholder="Enter proxy nodes YAML... (base64 will be auto-decoded)"
+                                placeholder="输入代理节点YAML...(Base64会自动解码)"
                                 className={`min-h-[120px] w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${errors.payloadContent ? "border-destructive" : "border-input"}`}
                             />
                             {errors.payloadContent && (
@@ -420,7 +420,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                         </div>
                     )}
                     <div className="grid gap-1.5">
-                        <Label htmlFor="interval">Interval (seconds) <span className="text-destructive">*</span></Label>
+                        <Label htmlFor="interval">更新间隔(秒) <span className="text-destructive">*</span></Label>
                         <Input
                             id="interval"
                             type="number"
@@ -434,10 +434,10 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                     </div>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-                            Cancel
+                            取消
                         </Button>
                         <Button type="submit">
-                            {isEditing ? 'Save' : 'Add'}
+                            {isEditing ? '保存' : '添加'}
                         </Button>
                     </DialogFooter>
                 </form>
