@@ -141,7 +141,11 @@ export default function App() {
 
     return (
         <div className="container mx-auto p-4 space-y-8">
-            <h1 className="text-3xl font-bold">Clash 链式代理配置器</h1>
+            <h1 className="text-3xl font-bold">Clash 链式配置器</h1>
+            
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+                <p>🔒 本应用是开源的纯客户端应用，不会向任何服务器传输数据，所有数据均存储在浏览器本地。</p>
+            </div>
 
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
