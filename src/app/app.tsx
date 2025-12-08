@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ConfigConfigurator from "./clash/configurator";
@@ -170,7 +171,17 @@ export default function App() {
                 </div>
             </header>
             
-            <div className="container mx-auto p-4 pt-20 space-y-8">
+            <div className="container mx-auto p-4 pt-4 space-y-8">
+                <div className="flex justify-center">
+                    <Image
+                        src="/clash-proxy-logo.png"
+                        alt="Clash 链式配置器"
+                        width={200}
+                        height={200}
+                        priority
+                    />
+                </div>
+                
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
                     <p>🔒 本应用是开源的纯客户端应用，不会向任何服务器传输数据，所有数据均存储在浏览器本地。</p>
                 </div>
