@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -9,6 +9,7 @@ import {
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { toast } from './ui/sonner';
+import jsQR from 'jsqr';
 
 interface ImportProxyNodesDialogProps {
     open: boolean;
@@ -185,6 +186,40 @@ function parseNodeLink(link: string): ProxyNode | null {
     return null;
 }
 
+function isValidNodeLink(text: string): boolean {
+    const trimmed = text.trim();
+    return (
+        trimmed.startsWith('vmess://') ||
+        trimmed.startsWith('vless://') ||
+        trimmed.startsWith('trojan://') ||
+        trimmed.startsWith('ss://') ||
+        trimmed.startsWith('hysteria2://') ||
+        trimmed.startsWith('hy2://')
+    );
+}
+
+async function decodeQRFromImage(blob: Blob): Promise<string | null> {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                resolve(null);
+                return;
+            }
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            resolve(code?.data || null);
+        };
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(blob);
+    });
+}
+
 export default function ImportProxyNodesDialog({
     open,
     onOpenChange,
@@ -192,6 +227,44 @@ export default function ImportProxyNodesDialog({
     existingNames,
 }: ImportProxyNodesDialogProps) {
     const [input, setInput] = useState('');
+
+    const handlePaste = useCallback(async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        const clipboardData = e.clipboardData;
+        
+        if (clipboardData.types.includes('text/plain')) {
+            const text = clipboardData.getData('text/plain');
+            if (text) {
+                return;
+            }
+        }
+        
+        const imageItem = Array.from(clipboardData.items).find(
+            item => item.type.startsWith('image/')
+        );
+        
+        if (imageItem) {
+            e.preventDefault();
+            const blob = imageItem.getAsFile();
+            if (!blob) {
+                toast.error('Failed to read image');
+                return;
+            }
+            
+            const decoded = await decodeQRFromImage(blob);
+            if (!decoded) {
+                toast.error('Failed to decode QR code from image');
+                return;
+            }
+            
+            if (!isValidNodeLink(decoded)) {
+                toast.error('QR code does not contain a valid proxy node link');
+                return;
+            }
+            
+            setInput(prev => prev ? prev + '\n' + decoded : decoded);
+            toast.success('QR code decoded successfully');
+        }
+    }, []);
 
     const handleImport = () => {
         const lines = input.split('\n').filter(line => line.trim());
@@ -239,7 +312,8 @@ export default function ImportProxyNodesDialog({
                         <textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder="vmess://...&#10;vless://...&#10;trojan://...&#10;ss://...&#10;hy2://..."
+                            onPaste={handlePaste}
+                            placeholder="vmess://...&#10;vless://...&#10;trojan://...&#10;ss://...&#10;hy2://...&#10;(or paste QR code image)"
                             className="min-h-[200px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         />
                     </div>
