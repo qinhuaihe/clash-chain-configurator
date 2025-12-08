@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ConfigConfigurator from "./clash/configurator";
 import ProviderList from "@/components/ProviderList";
 import ProviderDialog from "@/components/ProviderDialog";
@@ -7,7 +9,8 @@ import FinalProxyNodeDialog from "@/components/FinalProxyNodeDialog";
 import ImportProxyNodesDialog from "@/components/ImportProxyNodesDialog";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
-import { Plus, Import } from "lucide-react";
+import { Plus, Import, Copy, Download } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
 
 const configurator = new ConfigConfigurator();
 
@@ -116,6 +119,26 @@ export default function App() {
         setProxyNodes([...proxyNodes, ...nodes]);
     };
 
+    const handleCopyConfig = async () => {
+        try {
+            await navigator.clipboard.writeText(content);
+            toast.success('Copied to clipboard');
+        } catch {
+            toast.error('Failed to copy');
+        }
+    };
+
+    const handleDownloadConfig = () => {
+        const blob = new Blob([content], { type: 'text/yaml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'clash-config.yaml';
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Config downloaded');
+    };
+
     return (
         <div className="container mx-auto p-4 space-y-8">
             <h1 className="text-3xl font-bold">Clash Chain Configurator</h1>
@@ -178,11 +201,26 @@ export default function App() {
 
             <Toaster />
 
-            <div className="border p-4 rounded bg-slate-100 dark:bg-slate-900 overflow-auto">
-                <h2 className="text-xl font-semibold mb-2">Generated Config</h2>
-                <pre className="text-sm">
-                    <code>{content}</code>
-                </pre>
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold">Generated Config</h2>
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={handleCopyConfig}>
+                            <Copy className="mr-2 h-4 w-4" /> Copy
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownloadConfig}>
+                            <Download className="mr-2 h-4 w-4" /> Download
+                        </Button>
+                    </div>
+                </div>
+                <SyntaxHighlighter
+                    language="yaml"
+                    style={oneDark}
+                    showLineNumbers
+                    customStyle={{ borderRadius: '0.5rem', fontSize: '0.875rem', height: '800px', overflow: 'auto' }}
+                >
+                    {content}
+                </SyntaxHighlighter>
             </div>
         </div>
     );
