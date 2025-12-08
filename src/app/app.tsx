@@ -143,14 +143,14 @@ export default function App() {
     return (
         <>
             <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-2xl font-bold">Clash 链式代理配置器</h1>
+                <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <h1 className="text-lg sm:text-2xl font-bold">Clash 链式配置器</h1>
                         <a
                             href="https://x.com/shift_neo"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                            className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                         >
                             by 
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
@@ -171,26 +171,27 @@ export default function App() {
                 </div>
             </header>
             
-            <div className="container mx-auto p-4 pt-4 space-y-8">
+            <div className="container mx-auto px-3 sm:px-4 pt-16 sm:pt-20 pb-4 space-y-4 sm:space-y-8">
                 <div className="flex justify-center">
                     <Image
                         src="/clash-proxy-logo.png"
                         alt="Clash 链式配置器"
                         width={200}
                         height={200}
+                        className="w-32 h-32 sm:w-48 sm:h-48 md:w-[200px] md:h-[200px]"
                         priority
                     />
                 </div>
                 
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4 text-xs sm:text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
                     <p>🔒 本应用是开源的纯客户端应用，不会向任何服务器传输数据，所有数据均存储在浏览器本地。</p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">机场列表</h2>
-                        <Button onClick={handleAddProvider}>
-                            <Plus className="mr-2 h-4 w-4" /> 添加
+                        <h2 className="text-lg sm:text-xl font-semibold">机场列表</h2>
+                        <Button onClick={handleAddProvider} size="sm" className="sm:size-default">
+                            <Plus className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">添加</span>
                         </Button>
                     </div>
                     <ProviderList 
@@ -208,15 +209,15 @@ export default function App() {
                     existingNames={providers.map(p => p.name)}
                 />
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">代理节点</h2>
-                        <div className="flex gap-2">
-                            <Button onClick={() => setImportDialogOpen(true)} variant="outline">
-                                <Import className="mr-2 h-4 w-4" /> 导入
+                        <h2 className="text-lg sm:text-xl font-semibold">代理节点</h2>
+                        <div className="flex gap-1 sm:gap-2">
+                            <Button onClick={() => setImportDialogOpen(true)} variant="outline" size="sm" className="sm:size-default">
+                                <Import className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">导入</span>
                             </Button>
-                            <Button onClick={handleAddProxyNode}>
-                                <Plus className="mr-2 h-4 w-4" /> 添加
+                            <Button onClick={handleAddProxyNode} size="sm" className="sm:size-default">
+                                <Plus className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">添加</span>
                             </Button>
                         </div>
                     </div>
@@ -246,24 +247,27 @@ export default function App() {
 
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold">生成的配置</h2>
-                        <div className="flex gap-2">
+                        <h2 className="text-lg sm:text-xl font-semibold">生成的配置</h2>
+                        <div className="flex gap-1 sm:gap-2">
                             <Button variant="outline" size="sm" onClick={handleCopyConfig}>
-                                <Copy className="mr-2 h-4 w-4" /> 复制
+                                <Copy className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">复制</span>
                             </Button>
                             <Button variant="outline" size="sm" onClick={handleDownloadConfig}>
-                                <Download className="mr-2 h-4 w-4" /> 下载
+                                <Download className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">下载</span>
                             </Button>
                         </div>
                     </div>
-                    <SyntaxHighlighter
-                        language="yaml"
-                        style={oneDark}
-                        showLineNumbers
-                        customStyle={{ borderRadius: '0.5rem', fontSize: '0.875rem', height: '800px', overflow: 'auto' }}
-                    >
-                        {content}
-                    </SyntaxHighlighter>
+                    <div className="overflow-hidden rounded-lg">
+                        <SyntaxHighlighter
+                            language="yaml"
+                            style={oneDark}
+                            showLineNumbers
+                            customStyle={{ borderRadius: '0.5rem', fontSize: '0.75rem', margin: 0 }}
+                            className="!h-[400px] sm:!h-[600px] md:!h-[800px] text-xs sm:text-sm overflow-auto"
+                        >
+                            {content}
+                        </SyntaxHighlighter>
+                    </div>
                 </div>
             </div>
         </>

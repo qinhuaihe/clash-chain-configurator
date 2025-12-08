@@ -17,10 +17,8 @@ export default function Home() {
   // }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="mb-32 text-center lg:w-full lg:mb-0 lg:text-left">
-        <App />
-      </div>
+    <main className="min-h-screen w-full">
+      <App />
     </main>);
 
 }

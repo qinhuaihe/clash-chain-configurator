@@ -37,13 +37,13 @@ export default function FinalProxyNodeList({ proxyNodes, onRemove, onEdit }: Fin
     }
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {proxyNodes.map((node, index) => (
                 <Card key={index} className="relative">
-                    <CardHeader className="pb-2">
+                    <CardHeader className="p-3 sm:p-4 pb-2">
                         <div className="flex items-start justify-between">
                             <div className="space-y-1">
-                                <CardTitle className="text-lg">{node.name || `Proxy ${index + 1}`}</CardTitle>
+                                <CardTitle className="text-base sm:text-lg">{node.name || `Proxy ${index + 1}`}</CardTitle>
                                 <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
                                     {TYPE_LABELS[node.type] || node.type}
                                 </span>
