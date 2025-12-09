@@ -265,7 +265,7 @@ export default function App() {
                             customStyle={{ borderRadius: '0.5rem', fontSize: '0.75rem', margin: 0 }}
                             className="!h-[400px] sm:!h-[600px] md:!h-[800px] text-xs sm:text-sm overflow-auto"
                         >
-                            {content}
+                            {providers.length > 0 ? content : '请添加至少一个机场以生成配置。'}
                         </SyntaxHighlighter>
                     </div>
                 </div>
