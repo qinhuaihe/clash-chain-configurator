@@ -145,12 +145,12 @@ export default function App() {
             <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 sm:gap-3">
-                        <h1 className="text-lg sm:text-2xl font-bold">Clash 链式配置器</h1>
+                        <h1 className="text-lg sm:text-2xl font-bold">Clash 链式代理配置器</h1>
                         <a
                             href="https://x.com/shift_neo"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
                         >
                             by 
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
@@ -175,7 +175,7 @@ export default function App() {
                 <div className="flex justify-center">
                     <Image
                         src="/clash-proxy-logo.png"
-                        alt="Clash 链式配置器"
+                        alt="Clash 链式代理配置器"
                         width={200}
                         height={200}
                         className="w-32 h-32 sm:w-48 sm:h-48 md:w-[200px] md:h-[200px]"

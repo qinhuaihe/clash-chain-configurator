@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Clash 链式配置器 - 代理配置生成工具',
+  title: 'Clash 链式代理配置器 - 代理配置生成工具',
   description: '一个纯客户端的 Clash 代理配置生成器，支持多机场订阅合并、代理节点导入、VMess/VLESS/Trojan/SS/Hysteria2 协议解析，数据本地存储，安全可靠。',
   keywords: [
     'Clash',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: '迷雾NEO', url: 'https://x.com/shift_neo' }],
   openGraph: {
-    title: 'Clash 链式配置器',
+    title: 'Clash 链式代理配置器',
     description: '纯客户端 Clash 代理配置生成器，支持多机场订阅合并，数据本地存储',
     type: 'website',
     locale: 'zh_CN',
