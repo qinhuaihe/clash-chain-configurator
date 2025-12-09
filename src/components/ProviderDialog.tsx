@@ -349,7 +349,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="max-w-[95vw]">
                 <DialogHeader>
                     <DialogTitle>{isEditing ? '编辑机场' : '添加机场'}</DialogTitle>
                 </DialogHeader>
