@@ -332,17 +332,17 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
     }, [open, provider, reset]);
 
     const onSubmit = (data: ProviderFormValues) => {
-        const namesToCheck = isEditing 
+        const namesToCheck = isEditing
             ? existingNames.filter(n => n !== provider?.name)
             : existingNames;
-        
+
         if (namesToCheck.includes(data.name)) {
             toast.error('机场名称已存在', {
                 description: `名称为"${data.name}"的机场已存在`
             });
             return;
         }
-        
+
         onSave(data as ProxyProviderExtend);
         onOpenChange(false);
     };
@@ -418,19 +418,21 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                             )}
                         </div>
                     )}
-                    <div className="grid gap-1.5">
-                        <Label htmlFor="interval">更新间隔(秒) <span className="text-destructive">*</span></Label>
-                        <Input
-                            id="interval"
-                            type="number"
-                            {...register('interval')}
-                            placeholder="3600"
-                            className={errors.interval ? "border-destructive" : ""}
-                        />
-                        {errors.interval && (
-                            <span className="text-xs text-destructive">{errors.interval.message}</span>
-                        )}
-                    </div>
+                    {watchType === 'http' && (
+                        <div className="grid gap-1.5">
+                            <Label htmlFor="interval">更新间隔(秒) <span className="text-destructive">*</span></Label>
+                            <Input
+                                id="interval"
+                                type="number"
+                                {...register('interval')}
+                                placeholder="3600"
+                                className={errors.interval ? "border-destructive" : ""}
+                            />
+                            {errors.interval && (
+                                <span className="text-xs text-destructive">{errors.interval.message}</span>
+                            )}
+                        </div>
+                    )}
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             取消

@@ -49,16 +49,18 @@ export default function ProviderList({ providers, onRemove, onEdit }: ProviderLi
                             <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${provider.type === 'inline' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'}`}>
                                 {provider.type || 'http'}
                             </span>
-                            <span className="flex items-center gap-1">
-                                <Clock className="h-3.5 w-3.5" />
-                                {provider.interval || 3600}s
-                            </span>
+                            {provider.type === 'http' && (
+                                <span className="flex items-center gap-1">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {provider.interval || 3600}s
+                                </span>
+                            )}
                         </div>
                         {provider.type === 'inline' ? (
                             <div className="flex items-start gap-2">
                                 <FileText className="h-4 w-4 flex-shrink-0 mt-0.5" />
                                 <span className="truncate line-clamp-2 break-all">
-                                    {provider.payload ? `${provider.payload.slice(0, 80)}${provider.payload.length > 80 ? '...' : ''}` : '无节点内容'}
+                                    {provider.payloadContent ? `${provider.payloadContent.slice(0, 80)}${provider.payloadContent.length > 80 ? '...' : ''}` : '无节点内容'}
                                 </span>
                             </div>
                         ) : (
