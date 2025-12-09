@@ -184,7 +184,7 @@ export default function App() {
                 </div>
                 
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4 text-xs sm:text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
-                    <p>🔒 本应用是开源的纯客户端应用，不会向任何服务器传输数据，所有数据均存储在浏览器本地。</p>
+                    <p>🔒 本应用是开源的纯客户端应用，不会向任何服务器传输您的数据，所有数据均存储在浏览器本地，请放心使用。</p>
                 </div>
 
                 <div className="space-y-3 sm:space-y-4">
