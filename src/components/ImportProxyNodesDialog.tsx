@@ -304,7 +304,7 @@ export default function ImportProxyNodesDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>导入代理节点</DialogTitle>
+                    <DialogTitle>导入落地节点</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                     <div className="grid gap-1.5">

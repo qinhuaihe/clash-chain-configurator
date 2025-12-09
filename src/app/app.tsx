@@ -211,7 +211,7 @@ export default function App() {
 
                 <div className="space-y-3 sm:space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg sm:text-xl font-semibold">代理节点</h2>
+                        <h2 className="text-lg sm:text-xl font-semibold">落地节点</h2>
                         <div className="flex gap-1 sm:gap-2">
                             <Button onClick={() => setImportDialogOpen(true)} variant="outline" size="sm" className="sm:size-default">
                                 <Import className="h-4 w-4 sm:mr-2" /> <span className="hidden sm:inline">导入</span>

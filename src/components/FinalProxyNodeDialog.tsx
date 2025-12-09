@@ -261,9 +261,9 @@ export default function FinalProxyNodeDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[95vw] max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-[95vw] md:w-[500px] max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>{isEditing ? '编辑代理节点' : '添加代理节点'}</DialogTitle>
+                    <DialogTitle>{isEditing ? '编辑落地节点' : '添加落地节点'}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="grid gap-1.5">

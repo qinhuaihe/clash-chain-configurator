@@ -31,7 +31,7 @@ export default function FinalProxyNodeList({ proxyNodes, onRemove, onEdit }: Fin
     if (proxyNodes.length === 0) {
         return (
             <div className="text-center text-muted-foreground py-8">
-                暂无代理节点
+                暂无落地节点
             </div>
         );
     }
