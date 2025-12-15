@@ -184,7 +184,7 @@ export default function App() {
                 </div>
                 
                 <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 sm:p-4 text-xs sm:text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
-                    <p>🔒 本应用是开源的纯客户端应用，不会向任何服务器传输您的数据，所有数据均存储在浏览器本地，请放心使用。</p>
+                    <p>🔒 本应用是开源的纯客户端应用，不会向任何服务器传输您的数据，所有数据均存储在浏览器本地，请放心使用。使用说明请见<a className="underline" href="https://github.com/qinhuaihe/clash-chain-configurator?tab=readme-ov-file#%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E" target="noopener noreferrer">代码仓库</a>。</p>
                 </div>
 
                 <div className="space-y-3 sm:space-y-4">
