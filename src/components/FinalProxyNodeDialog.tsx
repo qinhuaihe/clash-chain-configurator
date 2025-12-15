@@ -43,7 +43,8 @@ type ProxyType = typeof PROXY_TYPES[number]['value'];
 interface FieldConfig {
     name: string;
     label: string;
-    type: 'text' | 'number' | 'password' | 'checkbox';
+    type: 'text' | 'number' | 'password' | 'checkbox' | 'select';
+    options?: string[];
     required?: boolean;
     placeholder?: string;
 }
@@ -60,6 +61,10 @@ const TYPE_SPECIFIC_FIELDS: Record<ProxyType, FieldConfig[]> = {
         { name: 'password', label: 'Password', type: 'password', placeholder: 'Optional' },
         { name: 'tls', label: 'TLS', type: 'checkbox' },
         { name: 'skip-cert-verify', label: 'Skip Cert Verify', type: 'checkbox' },
+        { name: 'sni', label: 'SNI', type: 'text', placeholder: 'Optional' },
+        { name: 'fingerprint', label: 'Fingerprint', type: 'text', placeholder: 'Optional' },
+        { name: 'ip-version', label: 'IP Version', type: 'select', placeholder: 'Optional', options: ['dual', 'ipv4', 'ipv6'] },
+        { name: 'headers', label: 'Headers', type: 'text', placeholder: 'key1: value1,key2: value2' },
     ],
     socks5: [
         { name: 'username', label: 'Username', type: 'text', placeholder: 'Optional' },
@@ -67,13 +72,18 @@ const TYPE_SPECIFIC_FIELDS: Record<ProxyType, FieldConfig[]> = {
         { name: 'tls', label: 'TLS', type: 'checkbox' },
         { name: 'udp', label: 'UDP', type: 'checkbox' },
         { name: 'skip-cert-verify', label: 'Skip Cert Verify', type: 'checkbox' },
+        { name: 'fingerprint', label: 'Fingerprint', type: 'text', placeholder: 'Optional' },
+        { name: 'ip-version', label: 'IP Version', type: 'select', placeholder: 'Optional', options: ['dual', 'ipv4', 'ipv6'] },
     ],
     ss: [
         { name: 'cipher', label: 'Cipher', type: 'text', required: true, placeholder: 'aes-128-gcm' },
         { name: 'password', label: 'Password', type: 'password', required: true },
         { name: 'udp', label: 'UDP', type: 'checkbox' },
         { name: 'udp-over-tcp', label: 'UDP over TCP', type: 'checkbox' },
-        { name: 'plugin', label: 'Plugin', type: 'text', placeholder: 'obfs, v2ray-plugin' },
+        { name: 'udp-over-tcp-version', label: 'UDP over TCP Version', type: 'number', placeholder: '2' },
+        { name: 'ip-version', label: 'IP Version', type: 'select', placeholder: 'Optional', options: ['dual', 'ipv4', 'ipv6'] },
+        { name: 'plugin', label: 'Plugin', type: 'text', placeholder: 'obfs, v2ray-plugin...' },
+        { name: 'plugin-opts.mode', label: 'Plugin Mode', type: 'text', placeholder: 'tls, http...' },
     ],
     ssr: [
         { name: 'cipher', label: 'Cipher', type: 'text', required: true, placeholder: 'chacha20-ietf' },
@@ -87,6 +97,8 @@ const TYPE_SPECIFIC_FIELDS: Record<ProxyType, FieldConfig[]> = {
     snell: [
         { name: 'psk', label: 'PSK', type: 'password', required: true },
         { name: 'version', label: 'Version', type: 'number', placeholder: '3' },
+        { name: 'obfs-opts.mode', label: 'Obfs Mode', type: 'text', placeholder: 'Optional' },
+        { name: 'obfs-opts.host', label: 'Obfs Host', type: 'text', placeholder: 'Optional' },
     ],
     vmess: [
         { name: 'uuid', label: 'UUID', type: 'text', required: true },
@@ -97,6 +109,8 @@ const TYPE_SPECIFIC_FIELDS: Record<ProxyType, FieldConfig[]> = {
         { name: 'network', label: 'Network', type: 'text', placeholder: 'tcp, ws, h2, grpc' },
         { name: 'udp', label: 'UDP', type: 'checkbox' },
         { name: 'skip-cert-verify', label: 'Skip Cert Verify', type: 'checkbox' },
+        { name: 'ws-opts.path', label: 'ws-opts.path', type: 'text', placeholder: 'Optional' },
+        { name: 'ws-opts.headers', label: 'ws-opts.headers', type: 'text', placeholder: 'key1: value1,key2: value2' },
     ],
     vless: [
         { name: 'uuid', label: 'UUID', type: 'text', required: true },
@@ -202,11 +216,40 @@ export default function FinalProxyNodeDialog({
 
     useEffect(() => {
         if (open && proxyNode) {
+            console.log('Editing proxy node:', proxyNode);
             setProxyType(proxyNode.type as ProxyType);
             const values: Record<string, any> = { ...proxyNode };
             if (proxyNode['allowed-ips'] && Array.isArray(proxyNode['allowed-ips'])) {
                 values['allowed-ips'] = proxyNode['allowed-ips'].join(', ');
             }
+            for (const key in values) {
+                if (key === 'headers') {
+                    const headersObj = values[key];
+                    if (typeof headersObj === 'object' && headersObj !== null) {
+                        const headersArr = [];
+                        for (const headerKey in headersObj) {
+                            headersArr.push(`${headerKey}: ${headersObj[headerKey]}`);
+                        }
+                        values[key] = headersArr.join(',');
+                    }
+                    continue;
+                }
+
+                if (typeof values[key] === 'object' && values[key] !== null) {
+                    for (const subKey in values[key]) {
+                        if (subKey !== 'headers') continue;
+                        const headersObj = values[key][subKey];
+                        if (typeof headersObj === 'object' && headersObj !== null) {
+                            const headersArr = [];
+                            for (const headerKey in headersObj) {
+                                headersArr.push(`${headerKey}: ${headersObj[headerKey]}`);
+                            }
+                            values[key][subKey] = headersArr.join(',');
+                        }
+                    }
+                }
+            }
+
             reset(values);
         } else if (open) {
             setProxyType('http');
@@ -234,18 +277,51 @@ export default function FinalProxyNodeDialog({
         const result: Record<string, any> = { type: proxyType };
         const allFields = [...COMMON_FIELDS, ...TYPE_SPECIFIC_FIELDS[proxyType]];
 
-        for (const field of allFields) {
-            const value = data[field.name];
-            if (value === undefined || value === '' || value === false) continue;
+        const getFieldValue = (fieldType: string, fieldName: string, value: any) => {
+            if (fieldType === 'number') {
+                return Number(value);
+            } else if (fieldType === 'checkbox') {
+                return Boolean(value);
+            } else if (fieldName === 'allowed-ips' && typeof value === 'string') {
+                return value.split(',').map((s: string) => s.trim()).filter(Boolean);
+            } else if (fieldName === 'headers') {
+                const headersObj: Record<string, string> = {};
+                value.split(',').forEach((pair: string) => {
+                    const [key, val] = pair.split(':').map((s: string) => s.trim());
+                    if (key && val) {
+                        headersObj[key] = val;
+                    }
+                });
+                return headersObj;
+            }
+            else {
+                return value;
+            }
+        }
 
-            if (field.type === 'number') {
-                result[field.name] = Number(value);
-            } else if (field.type === 'checkbox') {
-                result[field.name] = Boolean(value);
-            } else if (field.name === 'allowed-ips' && typeof value === 'string') {
-                result[field.name] = value.split(',').map((s: string) => s.trim()).filter(Boolean);
+        console.log('Form data submitted:', data);
+        for (const field of allFields) {
+            if (field.name.includes('.')) {
+                const [parent, child] = field.name.split('.');
+                const value = data[parent]?.[child];
+                if (value === undefined || value === '' || value === false) continue;
+                if (!result[parent]) result[parent] = {};
+                if (child === 'headers') {
+                    const headersObj: Record<string, string> = {};
+                    value.split(',').forEach((pair: string) => {
+                        const [key, val] = pair.split(':').map((s: string) => s.trim());
+                        if (key && val) {
+                            headersObj[key] = val;
+                        }
+                    });
+                    result[parent][child] = headersObj;
+                    continue;
+                }
+                result[parent][child] = getFieldValue(field.type, field.name, value);
             } else {
-                result[field.name] = value;
+                const value = data[field.name];
+                if (value === undefined || value === '' || value === false) continue;
+                result[field.name] = getFieldValue(field.type, field.name, value);
             }
         }
 
@@ -255,6 +331,8 @@ export default function FinalProxyNodeDialog({
 
         onSave(result as ProxyNode);
         onOpenChange(false);
+
+
     };
 
     const allFields = [...COMMON_FIELDS, ...TYPE_SPECIFIC_FIELDS[proxyType]];
@@ -295,24 +373,53 @@ export default function FinalProxyNodeDialog({
                                         />
                                         <Label htmlFor={field.name}>{field.label}</Label>
                                     </>
-                                ) : (
-                                    <>
-                                        <Label htmlFor={field.name}>
-                                            {field.label}
-                                            {field.required && <span className="text-destructive ml-1">*</span>}
-                                        </Label>
-                                        <Input
-                                            id={field.name}
-                                            type={field.type}
-                                            {...register(field.name, { required: field.required })}
-                                            placeholder={field.placeholder}
-                                            className={errors[field.name] ? "border-destructive" : ""}
-                                        />
-                                        {errors[field.name] && (
-                                            <span className="text-xs text-destructive">{field.label}不能为空</span>
-                                        )}
-                                    </>
-                                )}
+                                ) :
+                                    field.type === 'select' ? (
+                                        <>
+                                            <Label htmlFor={field.name}>
+                                                {field.label}
+                                                {field.required && <span className="text-destructive ml-1">*</span>}
+                                            </Label>
+                                            <Select
+                                                value={watch(field.name) || ''}
+                                                onValueChange={(v) => setValue(field.name, v)}
+                                                name={field.name}
+                                                required={field.required}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={`选择${field.label}`} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {field.options?.map((option) => (
+                                                        <SelectItem key={option} value={option}>
+                                                            {option}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors[field.name] && (
+                                                <span className="text-xs text-destructive">{field.label}不能为空</span>
+                                            )}
+                                        </>
+
+                                    ) : (
+                                        <>
+                                            <Label htmlFor={field.name}>
+                                                {field.label}
+                                                {field.required && <span className="text-destructive ml-1">*</span>}
+                                            </Label>
+                                            <Input
+                                                id={field.name}
+                                                type={field.type}
+                                                {...register(field.name, { required: field.required })}
+                                                placeholder={field.placeholder}
+                                                className={errors[field.name] ? "border-destructive" : ""}
+                                            />
+                                            {errors[field.name] && (
+                                                <span className="text-xs text-destructive">{field.label}不能为空</span>
+                                            )}
+                                        </>
+                                    )}
                             </div>
                         ))}
                     </div>
