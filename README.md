@@ -1,3 +1,26 @@
+# 使用说明
+
+简要说明：本项目是一个开源的纯客户端（浏览器）应用，用于根据“机场（代理订阅）”与“落地节点”生成支持`Clash链式代理功能`的 YAML 配置，所有数据存储在浏览器本地，不会上传到任何服务器。
+
+网址：https://clash-chain-configurator.vercel.app/
+
+## 操作步骤
+- 配置机场：有两种类型：`http`（订阅 URL + 更新间隔）和 `inline`（直接粘贴节点 YAML，支持base64加密文本，会自动解密）。
+- 配置落地节点：可手动添加或导入（支持多种节点链接格式或 QR）,如果有节点链接，建议您直接使用导入功能，防止编辑时属性填写不完整。
+- 配置生成：配置完成后会自动生成yaml配置文件，您可以复制或者下载到本地。
+    ![example](./images/example.png)
+    
+- 使用配置：下载后打开`Clash Verge`，通过：`新建 -> 类型(Local) -> 选择文件 -> 确定`，即可导入配置文件。请确保打开了`系统代理`或者`虚拟网卡模式`。
+    ![clash verge](./images/clash-verge.png)
+
+## 落地节点说明
+由于我本人用的是`vmess`落地节点，因此只测试了这种类型。如果您使用的是其他类型的节点，因为属性不完整导致不可以用的，您可以联系我完善。或者您也可以手动编辑yaml文件（注意不要删除`dialer-proxy`属性）。
+
+## 隐私说明
+本应用为纯客户端应用，不会把用户的机场订阅或节点发到外部服务器，所有配置仅保存在本地浏览器存储中（`localStorage`）。
+
+---
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

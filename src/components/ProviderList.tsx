@@ -66,8 +66,8 @@ export default function ProviderList({ providers, onRemove, onEdit }: ProviderLi
                         ) : (
                             <div className="flex items-center gap-2">
                                 <Link className="h-4 w-4 flex-shrink-0" />
-                                <span className="truncate" title={provider.path}>
-                                    {provider.path || '未设置订阅地址'}
+                                <span className="truncate" title={provider.url}>
+                                    {provider.url || '未设置订阅地址'}
                                 </span>
                             </div>
                         )}
