@@ -19,7 +19,7 @@ export default class ConfigConfigurator {
                 url: x.url || undefined,
                 interval: x.interval,
                 override: {
-                    "additional-prefix": providers.length > 1 ? x.name : undefined
+                    "additional-prefix": providers.length > 1 ? `${x.name} ` : undefined
                 },
                 payload: x.payloadContent ? jsyaml.load(x.payloadContent) as ProxyNode[] : undefined,
             };
