@@ -210,7 +210,7 @@ const providerSchema = z.object({
     type: z.enum(['http', 'inline']),
     url: z.string().optional(),
     payloadContent: z.string().optional(),
-    interval: z.coerce.number().min(60, "间隔至少60秒").default(3600)
+    interval: z.coerce.number().min(60, "间隔至少60分钟").default(86400)
 }).refine((data) => {
     if (data.type === 'http') {
         return data.url && data.url.length > 0;
@@ -262,7 +262,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
             type: 'http',
             url: '',
             payloadContent: '',
-            interval: 3600
+            interval: 86400
         }
     });
 
@@ -318,7 +318,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                 type: (provider.type as 'http' | 'inline') || 'http',
                 url: provider.url || '',
                 payloadContent: provider.payloadContent || '',
-                interval: provider.interval || 3600
+                interval: provider.interval || 86400
             });
         } else if (open) {
             reset({
@@ -326,7 +326,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                 type: 'http',
                 url: '',
                 payloadContent: '',
-                interval: 3600
+                interval: 86400
             });
         }
     }, [open, provider, reset]);
@@ -425,7 +425,7 @@ export default function ProviderDialog({ open, onOpenChange, provider, onSave, e
                                 id="interval"
                                 type="number"
                                 {...register('interval')}
-                                placeholder="3600"
+                                placeholder="86400"
                                 className={errors.interval ? "border-destructive" : ""}
                             />
                             {errors.interval && (

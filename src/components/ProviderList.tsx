@@ -52,7 +52,7 @@ export default function ProviderList({ providers, onRemove, onEdit }: ProviderLi
                             {provider.type === 'http' && (
                                 <span className="flex items-center gap-1">
                                     <Clock className="h-3.5 w-3.5" />
-                                    {provider.interval || 3600}s
+                                    {provider.interval || 86400}s
                                 </span>
                             )}
                         </div>
