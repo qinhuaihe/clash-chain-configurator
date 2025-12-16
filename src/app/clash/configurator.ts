@@ -48,7 +48,7 @@ export default class ConfigConfigurator {
     }
 
     get content() {
-        const { dns, 'proxy-providers': providers, proxies, 'proxy-groups': groups, rules, ...rest } = this.config;
+        const { dns, 'proxy-providers': proxyProviders, proxies, 'proxy-groups': proxyGroups, 'rule-providers': ruleProviders, rules, ...rest } = this.config;
         
         const parts: string[] = [];
         
@@ -58,16 +58,20 @@ export default class ConfigConfigurator {
             parts.push(jsyaml.dump({ dns }, { lineWidth: -1, flowLevel: 2 }));
         }
         
-        if (providers && Object.keys(providers).length > 0) {
-            parts.push(jsyaml.dump({ 'proxy-providers': providers }, { lineWidth: -1, flowLevel: 4 }));
+        if (proxyProviders && Object.keys(proxyProviders).length > 0) {
+            parts.push(jsyaml.dump({ 'proxy-providers': proxyProviders }, { lineWidth: -1, flowLevel: 4 }));
         }
         
         if (proxies && proxies.length > 0) {
             parts.push(jsyaml.dump({ proxies }, { lineWidth: -1, flowLevel: 2 }));
         }
         
-        if (groups && groups.length > 0) {
-            parts.push(jsyaml.dump({ 'proxy-groups': groups }, { lineWidth: -1, flowLevel: 2 }));
+        if (proxyGroups && proxyGroups.length > 0) {
+            parts.push(jsyaml.dump({ 'proxy-groups': proxyGroups }, { lineWidth: -1, flowLevel: 2 }));
+        }
+
+        if (ruleProviders && Object.keys(ruleProviders).length > 0) {
+            parts.push(jsyaml.dump({ 'rule-providers': ruleProviders }, { lineWidth: -1, flowLevel: 4 }));
         }
 
         if (rules && rules.length > 0) {

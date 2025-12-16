@@ -1,6 +1,7 @@
 # 使用说明
 
-简要说明：本项目是一个开源的纯客户端（浏览器）应用，用于根据“机场（代理订阅）”与“落地节点”生成支持`Clash链式代理功能`的 YAML 配置，所有数据存储在浏览器本地，不会上传到任何服务器。
+本项目是一个开源的纯客户端（浏览器）应用，用于根据“机场（代理订阅）”与“落地节点”生成支持`Clash链式代理功能`的 YAML 配置，所有数据存储在浏览器本地，不会上传到任何服务器。
+规则使用是[Loyalsoldier/clash-rules](https://github.com/Loyalsoldier/clash-rules)
 
 网址：https://clash-chain-configurator.vercel.app/
 
