@@ -297,7 +297,7 @@ export default function ImportProxyNodesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-[95vw] md:w-[500px]">
         <DialogHeader>
           <DialogTitle>导入落地节点</DialogTitle>
         </DialogHeader>
