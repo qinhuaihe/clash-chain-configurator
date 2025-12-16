@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import Image from 'next/image'
-import { Button } from "@/components/ui/button"
-import App from './app'
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import App from './app';
 
 export default function Home() {
   // const handleClick = async () => {
@@ -19,6 +19,6 @@ export default function Home() {
   return (
     <main className="min-h-screen w-full">
       <App />
-    </main>);
-
+    </main>
+  );
 }

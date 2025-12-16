@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -39,6 +41,7 @@
     "eslint": "^9.39.1",
     "eslint-config-next": "16.0.7",
     "postcss": "^8",
+    "prettier": "^3.7.4",
     "tailwindcss": "^3",
     "typescript": "^5",
     "yaml-loader": "^0.8.1"

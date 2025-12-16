@@ -1,12 +1,13 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Clash 链式代理配置器 - 代理配置生成工具',
-  description: '一个纯客户端的 Clash 代理配置生成器，支持多机场订阅合并、代理节点导入、VMess/VLESS/Trojan/SS/Hysteria2 协议解析，数据本地存储，安全可靠。',
+  description:
+    '一个纯客户端的 Clash 代理配置生成器，支持多机场订阅合并、代理节点导入、VMess/VLESS/Trojan/SS/Hysteria2 协议解析，数据本地存储，安全可靠。',
   keywords: [
     'Clash',
     'Clash配置',
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
     '节点导入',
     'proxy-provider',
     'Clash Meta',
-    'Mihomo'
+    'Mihomo',
   ],
   authors: [{ name: '迷雾NEO', url: 'https://x.com/shift_neo' }],
   openGraph: {
@@ -37,16 +38,12 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-}
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
       <body className={`${inter.className} overflow-x-hidden`}>{children}</body>
     </html>
-  )
+  );
 }
