@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import yaml from 'js-yaml';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './ui/dialog';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
@@ -181,6 +182,49 @@ function parseNodeLink(link: string): ProxyNode | null {
   return null;
 }
 
+function parseClashYaml(text: string): ProxyNode[] {
+  try {
+    const parsed = yaml.load(text);
+
+    // Check if it's a full config with proxies key
+    if (parsed && typeof parsed === 'object' && 'proxies' in parsed && Array.isArray((parsed as { proxies: unknown }).proxies)) {
+      const nodes = (parsed as { proxies: unknown[] }).proxies.filter(
+        (node): node is ProxyNode =>
+          typeof node === 'object' && node !== null && 'name' in node && 'type' in node && 'server' in node
+      );
+      return nodes;
+    }
+
+    // Check if it's a direct array of proxies
+    if (Array.isArray(parsed)) {
+      const nodes = parsed.filter(
+        (node): node is ProxyNode =>
+          typeof node === 'object' && node !== null && 'name' in node && 'type' in node && 'server' in node
+      );
+      return nodes;
+    }
+
+    // Check if it's a single proxy node
+    if (parsed && typeof parsed === 'object' && 'name' in parsed && 'type' in parsed && 'server' in parsed) {
+      return [parsed as ProxyNode];
+    }
+
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function isClashYaml(text: string): boolean {
+  const trimmed = text.trim();
+  // Check for common Clash YAML patterns
+  return (
+    trimmed.startsWith('proxies:') ||
+    (trimmed.startsWith('- ') && trimmed.includes('type:') && trimmed.includes('server:')) ||
+    (trimmed.includes('name:') && trimmed.includes('type:') && trimmed.includes('server:'))
+  );
+}
+
 function isValidNodeLink(text: string): boolean {
   const trimmed = text.trim();
   return (
@@ -262,13 +306,13 @@ export default function ImportProxyNodesDialog({
   }, []);
 
   const handleImport = () => {
-    const lines = input.split('\n').filter((line) => line.trim());
     const nodes: ProxyNode[] = [];
     const errors: string[] = [];
 
-    for (const line of lines) {
-      const node = parseNodeLink(line);
-      if (node) {
+    // First, try to parse as Clash YAML
+    if (isClashYaml(input)) {
+      const yamlNodes = parseClashYaml(input);
+      for (const node of yamlNodes) {
         let name = node.name;
         let counter = 1;
         while (existingNames.includes(name) || nodes.some((n) => n.name === name)) {
@@ -276,8 +320,23 @@ export default function ImportProxyNodesDialog({
         }
         node.name = name;
         nodes.push(node);
-      } else {
-        errors.push(line.slice(0, 50) + (line.length > 50 ? '...' : ''));
+      }
+    } else {
+      // Fall back to parsing as individual links
+      const lines = input.split('\n').filter((line) => line.trim());
+      for (const line of lines) {
+        const node = parseNodeLink(line);
+        if (node) {
+          let name = node.name;
+          let counter = 1;
+          while (existingNames.includes(name) || nodes.some((n) => n.name === name)) {
+            name = `${node.name}-${counter++}`;
+          }
+          node.name = name;
+          nodes.push(node);
+        } else {
+          errors.push(line.slice(0, 50) + (line.length > 50 ? '...' : ''));
+        }
       }
     }
 
@@ -290,7 +349,7 @@ export default function ImportProxyNodesDialog({
       onOpenChange(false);
     } else {
       toast.error('未找到有效节点', {
-        description: '请检查输入格式 (vmess://, vless://, trojan://, ss://, hy2://)',
+        description: '请检查输入格式 (vmess://, vless://, trojan://, ss://, hy2://, 或 Clash YAML)',
       });
     }
   };
@@ -303,17 +362,17 @@ export default function ImportProxyNodesDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid gap-1.5">
-            <Label>粘贴节点链接(每行一个)</Label>
+            <Label>粘贴节点链接或 Clash YAML</Label>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onPaste={handlePaste}
-              placeholder="vmess://...&#10;vless://...&#10;trojan://...&#10;ss://...&#10;hy2://...&#10;(或粘贴二维码图片)"
+              placeholder="vmess://...&#10;vless://...&#10;或 Clash YAML 格式:&#10; - name: node1..."
               className="min-h-[200px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            支持的格式: vmess://, vless://, trojan://, ss://, hysteria2://, hy2://
+            支持: 节点链接 (vmess://, vless://, trojan://, ss://, hy2://) 或 Clash YAML 格式
           </p>
         </div>
         <DialogFooter>
